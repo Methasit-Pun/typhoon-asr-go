@@ -1,0 +1,19 @@
+# Minimal Requirements for Typhoon ASR Events
+
+# Main dependency - this provides all the core ASR functionality
+typhoon-asr
+
+# Optional: Redis for caching and session management
+redis>=4.3.0
+
+# Optional: Development and testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Note: typhoon-asr package already includes:
+# - torch
+# - librosa  
+# - soundfile
+# - nemo-toolkit[asr]
+# - numpy
+# And handles all audio processing, model loading, etc.
