@@ -2,7 +2,7 @@
 
 A plug-and-play library for integrating SCB10X Typhoon ASR into any Python application or pipeline. Simply drop the `typhoon_asr_events` folder into your project and start converting voice to text with powerful event-driven processing.
 
-## 📦 Library Integration
+##  Library Integration
 
 ### Quick Setup
 
@@ -23,7 +23,7 @@ pip install torch librosa soundfile nemo-toolkit redis pyyaml numpy
 from typhoon_asr_events import TyphoonASRSystem
 ```
 
-## 🚀 Function Reference Guide
+##  Function Reference Guide
 
 ### 1. TyphoonASRSystem - Main Library Class
 
@@ -340,7 +340,7 @@ if results['overall']['healthy']:
     print("System is healthy")
 ```
 
-## 🔧 Integration Patterns
+##  Integration Patterns
 
 ### 1. Web API Integration
 
@@ -561,7 +561,7 @@ system.event_bus.subscribe(EventTypes.TEXT_READY, custom_processor)
 result = await system.process_audio_file("audio.wav")
 ```
 
-## 🛠️ Configuration Examples
+##  Configuration Examples
 
 ### Development Configuration
 
@@ -617,7 +617,7 @@ services:
     image: redis:7-alpine
 ```
 
-## 🎯 Quick Start Examples
+##  Quick Start Examples
 
 ### 1. Simple Voice-to-Text
 
@@ -678,7 +678,7 @@ async def custom_config_example():
 asyncio.run(custom_config_example())
 ```
 
-## 🚀 Getting Started Checklist
+##  Getting Started Checklist
 
 - [ ] Copy `typhoon_asr_events/` folder to your project
 - [ ] Install requirements: `pip install -r typhoon_asr_events/requirements.txt`
@@ -688,11 +688,11 @@ asyncio.run(custom_config_example())
 - [ ] Process audio: `result = await system.process_audio_file("audio.wav")`
 - [ ] Clean up: `await system.shutdown()`
 
-## 📞 Support
+##  Support
 
 - **Issues**: Check function documentation and error messages
 - **Performance**: Use GPU with `config.asr.device = "cuda"`
 - **Memory**: Adjust `batch_size` and `cache_ttl` settings
 - **Scaling**: Use Redis cluster and multiple worker processes
 
-Ready to integrate SCB10X Typhoon ASR into your pipeline! 🎉
+Ready to integrate SCB10X Typhoon ASR into your pipeline! 

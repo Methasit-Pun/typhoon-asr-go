@@ -195,7 +195,7 @@ class TyphoonASRSystem:
         """Handle text ready events."""
         data = event.data
         
-        self.logger.info("🎯 TEXT READY")
+        self.logger.info(" TEXT READY")
         self.logger.info(f"Session: {data['session_id']}")
         self.logger.info(f"Full Text: {data['full_text']}")
         self.logger.info(f"Sentences: {len(data['sentences'])}")
@@ -249,24 +249,24 @@ class TyphoonASRSystem:
 # Example usage functions
 async def example_single_file(audio_file: str):
     """Example: Process a single audio file."""
-    print(f"🎵 Processing single file: {audio_file}")
+    print(f" Processing single file: {audio_file}")
     
     system = TyphoonASRSystem()
     
     try:
         result = await system.process_audio_file(audio_file)
-        print("✅ Processing complete!")
-        print(f"📊 Results: {result}")
+        print(" Processing complete!")
+        print(f" Results: {result}")
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
     finally:
         await system.shutdown()
 
 
 async def example_streaming():
     """Example: Process streaming audio chunks."""
-    print("🎵 Processing streaming audio...")
+    print(" Processing streaming audio...")
     
     system = TyphoonASRSystem()
     
@@ -297,17 +297,17 @@ async def example_streaming():
     
     try:
         await system.process_audio_stream(mock_audio_stream())
-        print("✅ Streaming complete!")
+        print(" Streaming complete!")
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
     finally:
         await system.shutdown()
 
 
 async def example_batch_processing(audio_files: list):
     """Example: Process multiple audio files."""
-    print(f"🎵 Processing {len(audio_files)} files...")
+    print(f" Processing {len(audio_files)} files...")
     
     system = TyphoonASRSystem()
     
@@ -319,15 +319,15 @@ async def example_batch_processing(audio_files: list):
             result = await system.process_audio_file(audio_file)
             results.append(result)
         
-        print("✅ Batch processing complete!")
-        print(f"📊 Processed {len(results)} files")
+        print(" Batch processing complete!")
+        print(f" Processed {len(results)} files")
         
         # Print summary stats
         stats = await system.get_system_stats()
-        print(f"📈 System stats: {stats}")
+        print(f" System stats: {stats}")
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
     finally:
         await system.shutdown()
 
@@ -350,9 +350,9 @@ def main():
     if args.config:
         try:
             config = Config.from_file(args.config)
-            print(f"📁 Loaded config from: {args.config}")
+            print(f" Loaded config from: {args.config}")
         except Exception as e:
-            print(f"⚠️  Failed to load config: {e}")
+            print(f"  Failed to load config: {e}")
             config = default_config
     else:
         config = default_config
@@ -365,7 +365,7 @@ def main():
     elif args.stream_mode:
         asyncio.run(example_streaming())
     else:
-        print("❓ Please specify --audio-file, --audio-files, or --stream-mode")
+        print(" Please specify --audio-file, --audio-files, or --stream-mode")
         parser.print_help()
 
 

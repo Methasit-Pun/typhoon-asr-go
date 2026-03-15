@@ -50,7 +50,7 @@ def prepare_audio(input_path, output_path=None, target_sr=16000):
     if output_path is None:
         output_path = f"processed_{input_path.stem}.wav"
 
-    print(f"🎵 Processing audio: {input_path.name}")
+    print(f" Processing audio: {input_path.name}")
 
     # Load and resample audio
     y, sr = librosa.load(str(input_path), sr=None)
@@ -72,7 +72,7 @@ def prepare_audio(input_path, output_path=None, target_sr=16000):
     if not os.path.exists(output_path):
         return False, None, {"error": f"Failed to write processed audio to {output_path}"}
     
-    print(f"✅ Processed: {output_path}")
+    print(f" Processed: {output_path}")
 
     return True, output_path, {
         "original_sr": sr,
@@ -95,7 +95,7 @@ def load_typhoon_model(device='auto'):
     if device == 'auto':
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    print(f"🌪️ Loading Typhoon ASR Real-Time model...")
+    print(f" Loading Typhoon ASR Real-Time model...")
     print(f"   Device: {device.upper()}")
 
     model = nemo_asr.models.ASRModel.from_pretrained(
@@ -104,7 +104,7 @@ def load_typhoon_model(device='auto'):
     )
 
     if model is None:
-        print(f"❌ Failed to load model.")
+        print(f" Failed to load model.")
         return None
     return model
 
@@ -120,7 +120,7 @@ def basic_transcription(model, audio_file):
     Returns:
         tuple: (transcription: str, processing_time: float)
     """
-    print("🎙️ Running basic transcription...")
+    print(" Running basic transcription...")
 
     start_time = time.time()
     transcriptions = model.transcribe(audio=[audio_file])
@@ -141,7 +141,7 @@ def transcription_with_timestamps(model, audio_file):
     Returns:
         tuple: (transcription: str, timestamps: list, processing_time: float)
     """
-    print("🕐 Running transcription with timestamp estimation...")
+    print(" Running transcription with timestamp estimation...")
 
     # Get audio duration
     audio_duration = 0
@@ -198,12 +198,12 @@ def main():
 
     args = parser.parse_args()
 
-    print("🌪️ Typhoon ASR Real-Time Inference")
+    print(" Typhoon ASR Real-Time Inference")
     print("=" * 50)
 
     # Check input file
     if not os.path.exists(args.input_file):
-        print(f"❌ Input file not found: {args.input_file}")
+        print(f" Input file not found: {args.input_file}")
         return 1
 
     # Load model
@@ -218,7 +218,7 @@ def main():
     )
 
     if not success:
-        print(f"❌ Audio processing failed: {info.get('error', 'Unknown error')}")
+        print(f" Audio processing failed: {info.get('error', 'Unknown error')}")
         return 1
 
     # Calculate performance metrics
@@ -238,7 +238,7 @@ def main():
 
     # Display results
     print("\n" + "=" * 50)
-    print("📝 TRANSCRIPTION RESULTS")
+    print(" TRANSCRIPTION RESULTS")
     print("=" * 50)
     print(f"Mode: {mode}")
     print(f"File: {Path(args.input_file).name}")
@@ -247,16 +247,16 @@ def main():
     print(f"RTF: {rtf:.3f}x", end="")
 
     if rtf < 1.0:
-        print(" 🚀 (Real-time capable!)")
+        print("  (Real-time capable!)")
     else:
-        print(" ✅ (Batch processing)")
+        print("  (Batch processing)")
 
     print(f"\nTranscription:")
     print(f"'{transcription.text}'")
 
     # Show timestamps if available
     if timestamps:
-        print(f"\n🕐 Word Timestamps (estimated):")
+        print(f"\n Word Timestamps (estimated):")
         print("-" * 45)
         for i, ts in enumerate(timestamps[:10], 1):  # Show first 10 words
             print(f"{i:2d}. [{ts['start']:6.2f}s - {ts['end']:6.2f}s] {ts['word']}")
@@ -268,9 +268,9 @@ def main():
     # Cleanup processed file if it's temporary
     if processed_file.startswith("processed_") and os.path.exists(processed_file):
         os.remove(processed_file)
-        print(f"🧹 Cleaned up temporary file: {processed_file}")
+        print(f" Cleaned up temporary file: {processed_file}")
 
-    print("\n✅ Processing complete!")
+    print("\n Processing complete!")
     return 0
 
 

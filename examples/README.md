@@ -18,8 +18,8 @@ The notebook demonstrates:
 
 ### Using Command Line
 ```bash
-cd ..
-python typhoon_asr_inference.py examples/cv_test.wav
+# Run from the project root
+python src/typhoon_asr_inference.py examples/cv_test.wav
 ```
 
 ## 2. Training Your Own Model

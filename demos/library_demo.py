@@ -24,11 +24,11 @@ try:
     from typhoon_asr_events.services import ASRProcessor, TranscriptionAggregator
     from typhoon_asr_events.utils import AudioUtils, PerformanceMonitor, HealthChecker
     LIBRARY_AVAILABLE = True
-    print("✅ Typhoon ASR Events library loaded successfully")
+    print(" Typhoon ASR Events library loaded successfully")
 except ImportError as e:
-    print(f"❌ Library import failed: {e}")
-    print("📁 Make sure typhoon_asr_events folder is in your project directory")
-    print("📦 Install dependencies: pip install torch librosa soundfile nemo-toolkit redis pyyaml")
+    print(f" Library import failed: {e}")
+    print(" Make sure typhoon_asr_events folder is in your project directory")
+    print(" Install dependencies: pip install torch librosa soundfile nemo-toolkit redis pyyaml")
     LIBRARY_AVAILABLE = False
 
 
@@ -82,17 +82,17 @@ class VoiceToTextLibrary:
             return True
         
         try:
-            print("🚀 Initializing Typhoon ASR system...")
+            print(" Initializing Typhoon ASR system...")
             self.system = TyphoonASRSystem(self.config)
             self._is_initialized = True
             
-            print(f"✅ System ready! Using device: {self.config.asr.device}")
-            print(f"🎯 Confidence threshold: {self.config.asr.confidence_threshold}")
+            print(f" System ready! Using device: {self.config.asr.device}")
+            print(f" Confidence threshold: {self.config.asr.confidence_threshold}")
             
             return True
             
         except Exception as e:
-            print(f"❌ Initialization failed: {e}")
+            print(f" Initialization failed: {e}")
             return False
     
     async def transcribe_file(self, audio_file: str, session_id: Optional[str] = None) -> Dict[str, Any]:
@@ -166,7 +166,7 @@ class VoiceToTextLibrary:
                         'success': False
                     }
         
-        print(f"📂 Processing {len(audio_files)} files (max {max_concurrent} concurrent)...")
+        print(f" Processing {len(audio_files)} files (max {max_concurrent} concurrent)...")
         
         # Process all files
         tasks = [process_single_file(file) for file in audio_files]
@@ -175,7 +175,7 @@ class VoiceToTextLibrary:
         # Filter successful results
         successful_results = [r for r in results if isinstance(r, dict) and r.get('success', True)]
         
-        print(f"✅ Completed: {len(successful_results)}/{len(audio_files)} files successful")
+        print(f" Completed: {len(successful_results)}/{len(audio_files)} files successful")
         
         return results
     
@@ -304,7 +304,7 @@ class VoiceToTextLibrary:
         if self.system:
             await self.system.shutdown()
         self._is_initialized = False
-        print("🧹 System cleaned up")
+        print(" System cleaned up")
 
 
 # =============================================================================
@@ -375,12 +375,12 @@ class DataPipelineIntegration:
         for ext in ['.wav', '.mp3', '.m4a', '.flac', '.ogg']:
             audio_files.extend(input_path.glob(f"**/*{ext}"))
         
-        print(f"📂 Found {len(audio_files)} audio files in {input_folder}")
+        print(f" Found {len(audio_files)} audio files in {input_folder}")
         
         # Process files
         results = []
         for audio_file in audio_files:
-            print(f"🎵 Processing: {audio_file.name}")
+            print(f" Processing: {audio_file.name}")
             
             try:
                 result = await self.voice_system.transcribe_file(str(audio_file))
@@ -408,10 +408,10 @@ class DataPipelineIntegration:
                     with open(output_file, 'w', encoding='utf-8') as f:
                         f.write(result['full_text'])
                 
-                print(f"✅ Saved: {output_file}")
+                print(f" Saved: {output_file}")
                 
             except Exception as e:
-                print(f"❌ Error processing {audio_file}: {e}")
+                print(f" Error processing {audio_file}: {e}")
         
         # Save combined results
         combined_file = output_path / f"all_transcriptions.{self.output_format}"
@@ -420,7 +420,7 @@ class DataPipelineIntegration:
             with open(combined_file, 'w', encoding='utf-8') as f:
                 json.dump(results, f, ensure_ascii=False, indent=2)
         
-        print(f"📊 Processed {len(results)} files, saved to {output_folder}")
+        print(f" Processed {len(results)} files, saved to {output_folder}")
         
         await self.voice_system.cleanup()
 
@@ -437,7 +437,7 @@ class RealtimeStreamingIntegration:
         await self.voice_system.initialize()
         self.is_streaming = True
         
-        print("🎤 Starting real-time transcription...")
+        print(" Starting real-time transcription...")
         
         async def stream_processor():
             session_id = f"realtime_{int(time.time())}"
@@ -457,11 +457,11 @@ class RealtimeStreamingIntegration:
     
     async def on_chunk_processed(self, chunk_result: Dict[str, Any]):
         """Called when each audio chunk is processed"""
-        print(f"📡 Chunk processed: confidence {chunk_result['confidence']:.2f}")
+        print(f" Chunk processed: confidence {chunk_result['confidence']:.2f}")
     
     async def on_transcription_ready(self, result: Dict[str, Any]):
         """Called when complete transcription is ready"""
-        print(f"📝 Transcription: {result['full_text']}")
+        print(f" Transcription: {result['full_text']}")
         
         # Your custom handling here:
         # - Send to WebSocket clients
@@ -472,7 +472,7 @@ class RealtimeStreamingIntegration:
     def stop_streaming(self):
         """Stop the streaming process"""
         self.is_streaming = False
-        print("⏹️  Streaming stopped")
+        print("⏹  Streaming stopped")
 
 
 # =============================================================================
@@ -481,7 +481,7 @@ class RealtimeStreamingIntegration:
 
 async def run_simple_demo():
     """Simple demo showing basic functionality"""
-    print("🎯 Simple Voice-to-Text Demo")
+    print(" Simple Voice-to-Text Demo")
     print("="*50)
     
     # Initialize the library
@@ -491,12 +491,12 @@ async def run_simple_demo():
         # Setup
         success = await voice_to_text.initialize()
         if not success:
-            print("❌ Failed to initialize system")
+            print(" Failed to initialize system")
             return
         
         # Health check
         health = await voice_to_text.health_check()
-        print(f"🏥 System Health: {'✅ Healthy' if health['overall']['healthy'] else '❌ Issues detected'}")
+        print(f" System Health: {' Healthy' if health['overall']['healthy'] else ' Issues detected'}")
         
         # Look for example audio files
         example_files = [
@@ -511,18 +511,18 @@ async def run_simple_demo():
                 break
         
         if not audio_file:
-            print("⚠️  No example audio files found.")
+            print("  No example audio files found.")
             print("   Create an audio file (example.wav, test.mp3, etc.) to test")
             print("   Supported formats: .wav, .mp3, .m4a, .flac, .ogg")
             return
         
-        print(f"🎵 Processing: {audio_file}")
+        print(f" Processing: {audio_file}")
         
         # Transcribe
         result = await voice_to_text.transcribe_file(audio_file)
         
         # Display results
-        print(f"\n📝 Transcription Results:")
+        print(f"\n Transcription Results:")
         print(f"   Text: '{result['full_text']}'")
         print(f"   Confidence: {result['confidence']:.2f}")
         print(f"   Sentences: {len(result['sentences'])}")
@@ -536,12 +536,12 @@ async def run_simple_demo():
         stats = result.get('processing_stats', {})
         if 'real_time_factor' in stats:
             rtf = stats['real_time_factor']
-            print(f"   Performance: {rtf:.2f}x real-time ({'⚡ Fast' if rtf < 1 else '🐌 Slow'})")
+            print(f"   Performance: {rtf:.2f}x real-time ({' Fast' if rtf < 1 else ' Slow'})")
         
-        print(f"\n✅ Demo completed successfully!")
+        print(f"\n Demo completed successfully!")
         
     except Exception as e:
-        print(f"❌ Demo failed: {e}")
+        print(f" Demo failed: {e}")
         
     finally:
         await voice_to_text.cleanup()
@@ -549,7 +549,7 @@ async def run_simple_demo():
 
 async def run_batch_demo(audio_folder: str):
     """Demo batch processing"""
-    print("📂 Batch Processing Demo")
+    print(" Batch Processing Demo")
     print("="*50)
     
     # Initialize pipeline
@@ -565,7 +565,7 @@ async def run_batch_demo(audio_folder: str):
 
 async def run_api_demo():
     """Demo API integration"""
-    print("🌐 API Integration Demo")
+    print(" API Integration Demo")
     print("="*50)
     
     api = WebAPIIntegration()
@@ -576,7 +576,7 @@ async def run_api_demo():
     existing_files = [f for f in test_files if Path(f).exists()]
     
     if not existing_files:
-        print("⚠️  No test files found for API demo")
+        print("  No test files found for API demo")
         return
     
     # Single file
@@ -622,7 +622,7 @@ Examples:
     args = parser.parse_args()
     
     if not LIBRARY_AVAILABLE:
-        print("❌ Cannot run demo - library not available")
+        print(" Cannot run demo - library not available")
         return 1
     
     try:
@@ -649,7 +649,7 @@ Examples:
         
         elif args.demo == "batch":
             if not args.audio_dir:
-                print("❌ --audio-dir required for batch demo")
+                print(" --audio-dir required for batch demo")
                 return 1
             await run_batch_demo(args.audio_dir)
         
@@ -664,10 +664,10 @@ Examples:
             stats = await voice_system.get_performance_stats()
             health = await voice_system.health_check()
             
-            print("📊 Performance Stats:")
+            print(" Performance Stats:")
             print(json.dumps(stats, indent=2, default=str))
             
-            print("\n🏥 Health Check:")
+            print("\n Health Check:")
             print(json.dumps(health, indent=2, default=str))
             
             await voice_system.cleanup()
@@ -675,11 +675,11 @@ Examples:
         return 0
         
     except KeyboardInterrupt:
-        print("\n🛑 Interrupted by user")
+        print("\n Interrupted by user")
         return 0
     
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return 1
 
 
@@ -688,7 +688,7 @@ if __name__ == "__main__":
         exit_code = asyncio.run(main())
         exit(exit_code)
     else:
-        print("\n📋 Library Integration Instructions:")
+        print("\n Library Integration Instructions:")
         print("1. Copy typhoon_asr_events/ folder to your project")
         print("2. Install: pip install torch librosa soundfile nemo-toolkit redis pyyaml")
         print("3. Import: from typhoon_asr_events import TyphoonASRSystem")

@@ -1,6 +1,6 @@
 # Quick Setup Guide - Typhoon ASR Events Library
 
-## 🚀 1-Minute Setup
+##  1-Minute Setup
 
 ### Copy Library to Your Project
 ```bash
@@ -35,7 +35,7 @@ async def main():
 asyncio.run(main())
 ```
 
-## 🎯 Quick Examples
+##  Quick Examples
 
 ### Single File Processing
 ```python
@@ -87,7 +87,7 @@ async def process_stream():
     await system.shutdown()
 ```
 
-## 🔧 Configuration Options
+##  Configuration Options
 
 ### Environment Variables
 ```bash
@@ -121,12 +121,12 @@ config.asr.confidence_threshold = 0.9
 system = TyphoonASRSystem(config)
 ```
 
-## 📁 Supported Audio Formats
+##  Supported Audio Formats
 
-✅ **Supported**: WAV, MP3, M4A, FLAC, OGG, AAC, WebM
-❌ **Not supported**: Video files, raw PCM without headers
+ **Supported**: WAV, MP3, M4A, FLAC, OGG, AAC, WebM
+ **Not supported**: Video files, raw PCM without headers
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -153,7 +153,7 @@ system = TyphoonASRSystem(config)
 - **Audio quality**: Better audio = better transcription accuracy
 - **Confidence threshold**: Adjust based on your quality needs
 
-## 🚀 Integration Examples
+##  Integration Examples
 
 ### Web API (FastAPI)
 ```python
@@ -220,14 +220,14 @@ result = transcribe_async.delay("audio.wav")
 transcription = result.get()
 ```
 
-## 📞 Need Help?
+##  Need Help?
 
 1. **Check the logs** - Enable debug logging: `config.logging.level = "DEBUG"`
 2. **Test with simple files** - Try with a short, clear WAV file first  
 3. **Check system resources** - Ensure enough RAM/GPU memory
 4. **Validate audio files** - Use `AudioUtils.validate_audio_format()`
 
-## 🎉 You're Ready!
+##  You're Ready!
 
 The library is designed to be drop-in ready. Just copy, install dependencies, and start transcribing!
 
