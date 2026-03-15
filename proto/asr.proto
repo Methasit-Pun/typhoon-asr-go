@@ -1,0 +1,212 @@
+syntax = "proto3";
+
+package typhoon.asr.v1;
+
+option go_package = "github.com/scb10x/typhoon-asr/go/pkg/pb;pb";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+// ASRService provides Thai speech recognition over gRPC.
+// The Go server wraps the Python Typhoon ASR inference layer via subprocess bridge.
+service ASRService {
+  // Transcribe performs transcription on a complete audio file or audio bytes.
+  rpc Transcribe(TranscribeRequest) returns (TranscribeResponse);
+
+  // StreamTranscribe accepts a stream of audio chunks and returns partial/final
+  // transcriptions as Thai sentence boundaries are detected.
+  rpc StreamTranscribe(stream StreamTranscribeRequest) returns (stream StreamTranscribeResponse);
+
+  // HealthCheck verifies that the gRPC server and Python inference layer are ready.
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// ---------------------------------------------------------------------------
+// Unary transcription
+// ---------------------------------------------------------------------------
+
+message TranscribeRequest {
+  oneof audio_source {
+    bytes audio_data = 1;  // Raw audio bytes (WAV, MP3, M4A, FLAC, OGG, AAC, WEBM)
+    string file_path = 2;  // Absolute path on the server host (for server-local files)
+  }
+
+  TranscribeOptions options = 3;
+
+  // Optional correlation identifiers forwarded to the Python layer and echoed in the response.
+  string session_id = 4;
+  string request_id = 5;
+}
+
+message TranscribeOptions {
+  // Override the default model ("scb10x/typhoon-asr-realtime").
+  string model_name = 1;
+
+  // Request word-level estimated timestamps in the response.
+  bool with_timestamps = 2;
+
+  // Language hint passed to the model. Supported: "th", "en", "auto" (default).
+  string language_hint = 3;
+
+  // Minimum acceptable confidence score [0.0–1.0]. Results below this are
+  // flagged with TRANSCRIBE_STATUS_LOW_CONFIDENCE.
+  float confidence_threshold = 4;
+
+  // Compute device: "cpu", "cuda", or "auto" (default).
+  string device = 5;
+}
+
+message TranscribeResponse {
+  // Recognised text.
+  string text = 1;
+
+  // Word-level timestamps (populated only when TranscribeOptions.with_timestamps is true).
+  repeated WordTimestamp word_timestamps = 2;
+
+  // Aggregate confidence score for the utterance [0.0–1.0].
+  float confidence = 3;
+
+  google.protobuf.Duration audio_duration   = 4;
+  google.protobuf.Duration processing_time  = 5;
+
+  // real_time_factor = processing_time / audio_duration.
+  // Values < 1.0 indicate the model is faster than real-time.
+  float real_time_factor = 6;
+
+  string session_id  = 7;
+  string request_id  = 8;
+
+  TranscribeStatus status        = 9;
+  string           error_message = 10;
+}
+
+message WordTimestamp {
+  string word                           = 1;
+  google.protobuf.Duration start_time   = 2;
+  google.protobuf.Duration end_time     = 3;
+  float                    confidence   = 4;
+}
+
+// ---------------------------------------------------------------------------
+// Streaming transcription
+// ---------------------------------------------------------------------------
+
+message StreamTranscribeRequest {
+  oneof payload {
+    // First message in the stream must be a StreamConfig.
+    StreamConfig config = 1;
+    // Subsequent messages carry audio data.
+    AudioChunk chunk = 2;
+  }
+}
+
+message StreamConfig {
+  // PCM sample rate of the incoming audio (e.g. 16000).
+  int32 sample_rate = 1;
+
+  // Number of audio channels. Use 1 (mono) for best results.
+  int32 channels = 2;
+
+  AudioEncoding encoding = 3;
+
+  TranscribeOptions options = 4;
+
+  string session_id = 5;
+}
+
+message AudioChunk {
+  // Raw audio bytes in the format specified by StreamConfig.encoding.
+  bytes data = 1;
+
+  // Monotonically increasing sequence number for ordering and gap detection.
+  int64 sequence_number = 2;
+
+  // Wall-clock time when this chunk was captured (optional, for latency tracking).
+  google.protobuf.Timestamp captured_at = 3;
+
+  // Client sets this to true on the last chunk to signal end-of-stream.
+  bool is_final = 4;
+}
+
+message StreamTranscribeResponse {
+  // Partial transcription text (incremental) or final sentence.
+  string text = 1;
+
+  repeated WordTimestamp word_timestamps = 2;
+
+  float confidence = 3;
+
+  // True when a Thai sentence boundary has been detected (ครับ/ค่ะ/นะ/จ้า, etc.)
+  // or when is_final was set on the last AudioChunk.
+  bool is_final = 4;
+
+  // Echoed from the AudioChunk that triggered this response.
+  int64 sequence_number = 5;
+
+  string session_id = 6;
+
+  TranscribeStatus status        = 7;
+  string           error_message = 8;
+}
+
+// ---------------------------------------------------------------------------
+// Health check
+// ---------------------------------------------------------------------------
+
+message HealthCheckRequest {
+  // When true, the response includes model load status from the Python bridge.
+  bool include_model_status = 1;
+}
+
+message HealthCheckResponse {
+  ServiceStatus status  = 1;
+  string        version = 2;  // Server version string
+
+  // Populated when HealthCheckRequest.include_model_status is true.
+  ModelStatus       model         = 3;
+  PythonBridgeStatus python_bridge = 4;
+
+  google.protobuf.Timestamp checked_at = 5;
+}
+
+message ModelStatus {
+  bool   loaded     = 1;
+  string model_name = 2;
+  string device     = 3;
+}
+
+message PythonBridgeStatus {
+  bool  alive            = 1;
+  int32 pid              = 2;
+  int64 requests_handled = 3;
+  int64 errors           = 4;
+}
+
+// ---------------------------------------------------------------------------
+// Enumerations
+// ---------------------------------------------------------------------------
+
+enum TranscribeStatus {
+  TRANSCRIBE_STATUS_UNSPECIFIED    = 0;
+  TRANSCRIBE_STATUS_OK             = 1;
+  TRANSCRIBE_STATUS_ERROR          = 2;
+  TRANSCRIBE_STATUS_PARTIAL        = 3;  // Intermediate streaming result
+  TRANSCRIBE_STATUS_NO_SPEECH      = 4;  // Silence or unintelligible audio
+  TRANSCRIBE_STATUS_LOW_CONFIDENCE = 5;  // Below confidence_threshold
+}
+
+enum ServiceStatus {
+  SERVICE_STATUS_UNSPECIFIED  = 0;
+  SERVICE_STATUS_SERVING      = 1;
+  SERVICE_STATUS_NOT_SERVING  = 2;
+  SERVICE_STATUS_UNKNOWN      = 3;
+}
+
+enum AudioEncoding {
+  AUDIO_ENCODING_UNSPECIFIED = 0;
+  AUDIO_ENCODING_LINEAR16    = 1;  // 16-bit signed PCM (little-endian)
+  AUDIO_ENCODING_FLAC        = 2;
+  AUDIO_ENCODING_MP3         = 3;
+  AUDIO_ENCODING_OGG_OPUS    = 4;
+  AUDIO_ENCODING_WEBM_OPUS   = 5;
+}
